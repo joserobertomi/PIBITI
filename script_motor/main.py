@@ -1,3 +1,4 @@
+from re import A
 import RPi.GPIO as gpio
 import time
 import getch
@@ -9,6 +10,16 @@ def init():
     gpio.setup(23, gpio.OUT)
     gpio.setup(24, gpio.OUT)
     
+def parado(sec):
+    init()
+    gpio.output(17, False)
+    gpio.output(22, False)
+    gpio.output(23, False)
+    gpio.output(24, False)
+    time.sleep(sec)
+    gpio.cleanup() 
+    
+    
 def frente(sec): # OKOK
     init()
     gpio.output(17, True)
@@ -16,7 +27,7 @@ def frente(sec): # OKOK
     gpio.output(23, True)
     gpio.output(24, False)
     time.sleep(sec)
-    gpio.cleanup() 
+    #gpio.cleanup() 
     
 def re(sec): #PauPau
     init()
@@ -25,7 +36,7 @@ def re(sec): #PauPau
     gpio.output(23, False)
     gpio.output(24, True)
     time.sleep(sec)
-    gpio.cleanup()
+    #gpio.cleanup()
     
 def giro_antih(sec): # OKOK
     init()
@@ -34,7 +45,7 @@ def giro_antih(sec): # OKOK
     gpio.output(23, True)
     gpio.output(24, False)
     time.sleep(sec)
-    gpio.cleanup()
+    #gpio.cleanup()
     
 def giro_h(sec): # PauPau
     init()
@@ -43,7 +54,7 @@ def giro_h(sec): # PauPau
     gpio.output(23, False)
     gpio.output(24, True)
     time.sleep(sec)
-    gpio.cleanup()
+    #gpio.cleanup()
     
 def parab_esquerda(sec): # OKOK
     init()
@@ -52,7 +63,7 @@ def parab_esquerda(sec): # OKOK
     gpio.output(23, True)
     gpio.output(24, False)
     time.sleep(sec)
-    gpio.cleanup()
+    #gpio.cleanup()
     
 def parab_direita(sec): #OKOK
     init()
@@ -61,7 +72,7 @@ def parab_direita(sec): #OKOK
     gpio.output(23, False)
     gpio.output(24, False)
     time.sleep(sec)
-    gpio.cleanup()
+    #gpio.cleanup()
     
     
 def manuntencao(sec): 
@@ -71,104 +82,73 @@ def manuntencao(sec):
     gpio.output(23, True)
     gpio.output(24, True)
     time.sleep(sec)
-    gpio.cleanup()
+    #gpio.cleanup()
 
    
 def teste(seconds):    
-    print('Hello World')  
-    time.sleep(seconds)
-    
+
     print("Frente")
     frente(seconds)
-    #time.sleep(seconds+2)
+    parado(seconds+1)
     
     print("Re")
     re(seconds)
-    #time.sleep(seconds+2)
+    parado(seconds+1)
     
     print("Giro horario")
     giro_h(seconds)
-    #time.sleep(seconds+2)
+    parado(seconds+1)
     
     print("Giro anti-horario")
     giro_antih(seconds)
-    #time.sleep(seconds+2)
+    parado(seconds+1)
     
     print("Parabola esquerda")
     parab_esquerda(seconds)
-    #time.sleep(seconds+2)
+    parado(seconds+1)
     
     print("Parabola direita")
     parab_direita(seconds)
-    #time.sleep(seconds+2)
+    parado(seconds+1)
 
-def comando(seconds): 
-    print('Hello World') 
-    time.sleep(seconds)
-    
-    c = 20
-    while c > 0 :
-        a = input(str('Comando: ')) 
-        if a == "f":
-            print("Frente")
-            frente(seconds)
-            #time.sleep(seconds+2)
-        elif a == "r":
-            print("Re")
-            re(seconds)
-            #time.sleep(seconds+2)
-        elif a == "gh":    
-            print("Giro horario")
-            giro_h(seconds)
-            #time.sleep(seconds+2)
-        elif a == "ga":
-            print("Giro anti-horario")
-            giro_antih(seconds)
-            #time.sleep(seconds+2)
-        elif a == "pe":    
-            print("Parabola esquerda")
-            parab_esquerda(seconds)
-            #time.sleep(seconds+2)
-        elif a == "pd":   
-            print("Parabola direita")
-            parab_direita(seconds)
-            #time.sleep(seconds+2)
-        else: 
-            print("Comando invalido")
             
 def controle_pelo_computador():    
-    seconds = 0.025
-    a = ''
+    seconds = 0
+    parado(seconds)
+    a = get_single_char()
+    c = 0
     while a != 'x' :
-        a = get_single_char()
-        print()
+        c+=1
+        
+        if c >=300:
+            c = 0
+            parado(seconds)
+            a = get_single_char()
+        
         if a is not None: 
             if a == "w":
-                #print("Frente")
+                print("Frente")
                 frente(seconds)
                 #time.sleep(seconds+2)
             elif a == "s":
-                #print("Re")
+                print("Re")
                 re(seconds)
                 #time.sleep(seconds+2)
             elif a == "d":    
-                #print("Giro horario")
+                print("Giro horario")
                 giro_h(seconds)
                 #time.sleep(seconds+2)
             elif a == "a":
-                #print("Giro anti-horario")
+                print("Giro anti-horario")
                 giro_antih(seconds)
                 #time.sleep(seconds+2)
             elif a == "q":    
-                #print("Parabola esquerda")
+                print("Parabola esquerda")
                 parab_esquerda(seconds)
-                #time.sleep(seconds+2)
             elif a == "e":   
-                #print("Parabola direita")
+                print("Parabola direita")
                 parab_direita(seconds)
-                #time.sleep(seconds+2)
-            #else: 
-                #print("Comando invalido")
+
     print("Precionou 'x', saindo do modo de controle")
 
 def get_single_char():
@@ -179,6 +159,9 @@ def get_single_char():
         return None
 
 if __name__ == '__main__':
+    print("Inicializando o teste dos motores")
+    teste(1)
+    print("Iniciando o controle via teclado")
     controle_pelo_computador()
-    print('Arreguei')
+    print('Finalizando opercao')
     
