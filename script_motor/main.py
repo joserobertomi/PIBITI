@@ -17,8 +17,7 @@ def frente(sec): # OKOK
     time.sleep(sec)
     gpio.cleanup() 
     
-def re(sec): #PauPau
-    init()
+def re(sec): # OKOK
     gpio.output(17, False)
     gpio.output(22, True)
     gpio.output(23, False)
@@ -35,7 +34,7 @@ def giro_antih(sec): # OKOK
     time.sleep(sec)
     gpio.cleanup()
     
-def giro_h(sec): # PauPau
+def giro_h(sec): # OKOK
     init()
     gpio.output(17, True)
     gpio.output(22, False)
@@ -53,22 +52,12 @@ def parab_esquerda(sec): # OKOK
     time.sleep(sec)
     gpio.cleanup()
     
-def parab_direita(sec): #OKOK
+def parab_direita(sec): # OKOK
     init()
     gpio.output(17, True)
     gpio.output(22, False)
     gpio.output(23, False)
     gpio.output(24, False)
-    time.sleep(sec)
-    gpio.cleanup()
-    
-    
-def manuntencao(sec): 
-    init()
-    gpio.output(17, False)
-    gpio.output(22, False)
-    gpio.output(23, True)
-    gpio.output(24, True)
     time.sleep(sec)
     gpio.cleanup()
 
