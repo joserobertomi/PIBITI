@@ -6,7 +6,7 @@ Buscamos explorar a visão computacional para direcionar Perry, um carrinho, por
 
 ## Circuito
 
-![Ligação dos componentes necessários, raspberry, motores, ponte h e alimentação](https://github.com/joserobertomi/PIBITI/blob/main/media/circutio.png?raw=true "Circuito")
+![Ligação dos componentes necessários, raspberry, motores, ponte h e alimentação](https://github.com/joserobertomi/PIBITI/blob/main/circuito.png?raw=true "Circuito")
 
 ### Componentes
 
