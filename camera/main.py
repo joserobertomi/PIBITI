@@ -12,7 +12,6 @@ def capturar_video(cap, x, y, largura, altura, x2, y2):
         print("Cannot open camera")
         exit()
     while True:
-        time.sleep(1)
         ret, frame = cap.read()
         if not ret:
             print("Can't receive frame (stream end?). Exiting ...")
@@ -27,13 +26,13 @@ def capturar_video(cap, x, y, largura, altura, x2, y2):
         pretos, brancos = contar_pixels(roi, total)
         pretos2, brancos2 = contar_pixels(roi2, total)
 
-        frame = cv.rectangle(frame, (x, y), (x+largura, y+altura), (255, 0, 255), 1) 
-        frame = cv.putText(frame, ('P:' + str(pretos) + '% B:' + str(brancos) + "%"), (x, y + altura + 10), cv.FONT_HERSHEY_SIMPLEX , 0.3, (255, 0, 255), 1, cv.LINE_AA) 
+        threshold = cv.rectangle(threshold, (x, y), (x+largura, y+altura), (255, 0, 255), 1) 
+        threshold = cv.putText(threshold, ('P:' + str(pretos) + '% B:' + str(brancos) + "%"), (x, y + altura + 10), cv.FONT_HERSHEY_SIMPLEX , 0.3, (255, 0, 255), 1, cv.LINE_AA) 
 
-        frame = cv.rectangle(frame, (x2, y2), (x2+largura, y2+altura), (255, 0, 255), 1) 
-        frame = cv.putText(frame, ('P:' + str(pretos2) + '% B:' + str(brancos2) + "%"), (x2, y2 + altura + 10), cv.FONT_HERSHEY_SIMPLEX , 0.3, (255, 0, 255), 1, cv.LINE_AA) 
+        threshold = cv.rectangle(threshold, (x2, y2), (x2+largura, y2+altura), (255, 0, 255), 1) 
+        threshold = cv.putText(threshold, ('P:' + str(pretos2) + '% B:' + str(brancos2) + "%"), (x2, y2 + altura + 10), cv.FONT_HERSHEY_SIMPLEX , 0.3, (255, 0, 255), 1, cv.LINE_AA) 
 
-        cv.imshow('frame', frame)
+        cv.imshow('frame', threshold)
         if cv.waitKey(1) == ord('q'):
             break
 
