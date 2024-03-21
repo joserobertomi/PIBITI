@@ -2,10 +2,12 @@ from time import time, sleep
 global time0 
 time0 = time()
 import RPi.GPIO as gpio
+gpio.cleanup()
 import getch
 from picamera2 import Picamera2
 import numpy as np
 import cv2 as cv
+from sys import exit 
 
 
 def init_camera(cam_size):
@@ -18,8 +20,8 @@ def init_camera(cam_size):
 
 def take_photo(picam2):
     # Captura a imagem da camera e salva em um arquivo tipo jpg
-    picam2.start()
-    path = "/home/perry/temp/project/photos/frame.jpg"
+    picam2.start() 
+    path = "/home/perry/project/frame.jpg"
     picam2.capture_file(path)
     return path
 
@@ -62,7 +64,36 @@ def index_maior_sequencia_zeros(lista):
     return indice_inicio, indice_fim
 
 
-def define_roi_and_count(alt_roi, lar_roi, dist_linha, imagem): 
+def define_roi(alt_roi, lar_roi, dist_linha, img_path): 
+
+    frame = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
+    result, threshold = cv.threshold(frame, 50, 255, cv.THRESH_BINARY)
+    if result:
+
+        h, w = threshold.shape
+
+        y = h//2
+
+        alt_roi = int(alt_roi) # setavel 
+        lar_roi = int(lar_roi) # setavel 
+        dist_linha = int(dist_linha) # setavel 
+        half_alt_roi = int(alt_roi/2)
+        
+        roi_line = np.round(np.sum(threshold[y-half_alt_roi:y+half_alt_roi, :], axis=0) / (alt_roi * 255))
+        
+        margem_esq, margem_dir = index_maior_sequencia_zeros(roi_line)
+        
+        im1 = cv.rectangle(threshold, (margem_esq-lar_roi,y-half_alt_roi), (margem_esq, y+half_alt_roi), (0, 0, 0), 1)
+        im2 = cv.rectangle(im1, (margem_dir+lar_roi,y-half_alt_roi), (margem_dir, y+half_alt_roi), (0, 0, 0), 1)
+        
+        new_path ="/home/perry/project/defined_roi.png"
+        cv.imwrite(new_path, im2)
+    else: 
+        raise 'Problem in define RoI'
+    return (margem_esq, margem_dir)
+
+
+def count_roi(alt_roi, lar_roi, dist_linha, imagem, x_roi): 
 
     h, w = imagem.shape
 
@@ -74,18 +105,13 @@ def define_roi_and_count(alt_roi, lar_roi, dist_linha, imagem):
     half_alt_roi = int(alt_roi/2)
     total_roi = lar_roi*alt_roi
 
-    roi_line = np.round(np.sum(imagem[y-half_alt_roi:y+half_alt_roi, :], axis=0) / (alt_roi * 255))
-    #count_full_line = (np.sum(roi_line == 1) , np.sum(roi_line == 0))
-
-    margem_esq, margem_dir = index_maior_sequencia_zeros(roi_line)
+    margem_esq, margem_dir = x_roi[0], x_roi[1]
     margem_esq -= dist_linha
     margem_dir += dist_linha
     
     # JUMP OF CAT
     roi_esq = imagem[margem_esq-lar_roi:margem_esq, y-half_alt_roi:y+half_alt_roi] / 255
     roi_dir = imagem[margem_dir:margem_dir+lar_roi, y-half_alt_roi:y+half_alt_roi] / 255
-    #count_roi_esq = (np.sum(roi_esq == 1) , np.sum(roi_esq == 0))
-    #count_roi_dir = (np.sum(roi_dir == 1) , np.sum(roi_dir == 0))
     count_roi_esq = (((np.sum(roi_esq == 1)/total_roi) , (np.sum(roi_esq == 0)/total_roi)))
     count_roi_dir = (((np.sum(roi_dir == 1)/total_roi) , (np.sum(roi_dir == 0)/total_roi)))
     # JUMP OF CAT
@@ -93,22 +119,25 @@ def define_roi_and_count(alt_roi, lar_roi, dist_linha, imagem):
     return count_roi_esq, count_roi_dir
 
 
-def apply_threshold_and_count(img_path, largura, altura, margem):
+def apply_threshold_and_count(img_path, altura, largura, margem, x_roi):
     # Opencv le a imagem jpg em escala de cinza salva no raspberry 
     frame = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
     result, threshold = cv.threshold(frame, 50, 255, cv.THRESH_BINARY)
     if result:
         
-        squareL, squareR = define_roi_and_count(alt_roi=20, lar_roi=20, dist_linha=5, imagem=threshold)
+        squareL, squareR = count_roi(altura, largura, margem, threshold, x_roi)
         
         # Pode ser removido 
-        new_path ="/home/perry/temp/project/photos/filtered.png"
+        new_path ="/home/perry/project/filtered_to_count.png"
         cv.imwrite(new_path, threshold)
         # ateh aqui
         
-        return squareL, squareR, new_path
+        return squareL, squareR
     
-    return False, False, False
+    else:
+        raise 'Problem in apply the threshold'
+    
+    return False, False
 
 
 def parar(sec):
@@ -402,25 +431,45 @@ def get_single_char():
 
 if __name__ == '__main__':
 
-    camera = init_camera(cam_size=(640, 480))
+    cam_size=(640, 480)
+    altura_roi = 20
+    largura_roi= 20
+    dist_linha=10
+
+    camera = init_camera(cam_size=cam_size)
     time1 = time()
     
+    img_path = take_photo(picam2=camera)
+    time2 = time()    
+    
+    lim_roi = define_roi(altura_roi, largura_roi, dist_linha, img_path)
+        
+    
+        
     while True:
-            
-        #cam_size=(width, height)
-        path = take_photo(picam2=camera)
-        time2 = time()    
         
-        squareL, squareR, new_path = apply_threshold_and_count(img_path=path, largura=50, altura=50, margem=5)
+        print('eh o loop cowboy')
+        
+        squareL, squareR = apply_threshold_and_count(img_path, altura_roi, largura_roi, dist_linha, lim_roi)
         time3 = time()
-        
-        # se preto menor que 50%  
-        if squareL[0] < 0.5 and squareR[0] < 0.5  :
+    
+        # se branco maior que 75%  
+        if squareL[0] > 0.75 and squareR[0] > 0.75:
             # frente(tempo, pote, potd)
-            frente(0.8, 40, 40)
+            print('frente!')
+            frente(0.8, 0, 0)
+        elif squareL[1] > 0.75 and squareR[1] > 0.75:
+            print('parado!')
+            parar(0.8)
+        else:
+            print('nao to entendendo!')
+            
+        #exit()
+        
+        img_path = take_photo(picam2=camera)
         
         print_square_info(squareR, squareL)
-        print_time_spent(times=[time0, time1, time2, time3])
+        #print_time_spent(times=[time0, time1, time2, time3])
         
   
     

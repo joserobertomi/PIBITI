@@ -48,8 +48,10 @@ def define_roi(alt_roi, lar_roi, dist_linha, imagem):
     margem_dir += dist_linha
 
     # REMOVABLE
-    cv.rectangle(original, (margem_esq-lar_roi,y-half_alt_roi), (margem_esq, y+half_alt_roi), (0, 0, 0), 1)
-    cv.rectangle(original, (margem_dir+lar_roi,y-half_alt_roi), (margem_dir, y+half_alt_roi), (0, 0, 0), 1)
+    im1 = cv.rectangle(original, (margem_esq-lar_roi,y-half_alt_roi), (margem_esq, y+half_alt_roi), (0, 0, 0), 1)
+    im2 = cv.rectangle(im1, (margem_dir+lar_roi,y-half_alt_roi), (margem_dir, y+half_alt_roi), (0, 0, 0), 1)
+    new_path ="./defined_roi.png"
+    cv.imwrite(new_path, im2)
     # REMOVABLE
     
     # JUMP OF CAT
@@ -61,7 +63,7 @@ def define_roi(alt_roi, lar_roi, dist_linha, imagem):
     #count_roi_dir = (((np.sum(roi_dir == 1)/total_roi) , (np.sum(roi_dir == 0)/total_roi)))
     # JUMP OF CAT
 
-    cv.imshow('Image-captured', original)
+    cv.imshow('Image-captured', im2)
     cv.waitKey()
     cv.destroyAllWindows()
 
