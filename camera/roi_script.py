@@ -37,8 +37,8 @@ def define_roi(alt_roi, lar_roi, dist_linha, imagem):
     lar_roi = int(lar_roi) # setavel 
     dist_linha = int(dist_linha) # setavel 
     half_alt_roi = int(alt_roi/2)
-    half_lar_roi = int(lar_roi/2)
-    total_roi = lar_roi*alt_roi
+    #half_lar_roi = int(lar_roi/2)
+    #total_roi = lar_roi*alt_roi
 
     roi_line = np.round(np.sum(imagem[y-half_alt_roi:y+half_alt_roi, :], axis=0) / (alt_roi * 255))
     count_full_line = (np.sum(roi_line == 1) , np.sum(roi_line == 0))
