@@ -67,7 +67,7 @@ def index_maior_sequencia_zeros(lista):
 def define_roi(alt_roi, lar_roi, dist_linha, img_path): 
 
     frame = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
-    result, threshold = cv.threshold(frame, 50, 255, cv.THRESH_BINARY)
+    result, threshold = cv.threshold(frame, 127, 255, cv.THRESH_BINARY)
     if result:
 
         h, w = threshold.shape
@@ -122,7 +122,7 @@ def count_roi(alt_roi, lar_roi, dist_linha, imagem, x_roi):
 def apply_threshold_and_count(img_path, altura, largura, margem, x_roi):
     # Opencv le a imagem jpg em escala de cinza salva no raspberry 
     frame = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
-    result, threshold = cv.threshold(frame, 50, 255, cv.THRESH_BINARY)
+    result, threshold = cv.threshold(frame, 127, 255, cv.THRESH_BINARY)
     if result:
         
         squareL, squareR = count_roi(altura, largura, margem, threshold, x_roi)
@@ -444,34 +444,34 @@ if __name__ == '__main__':
     
     lim_roi = define_roi(altura_roi, largura_roi, dist_linha, img_path)
         
-    
-        
     while True:
-        
+                
         print('eh o loop cowboy')
         
         squareL, squareR = apply_threshold_and_count(img_path, altura_roi, largura_roi, dist_linha, lim_roi)
         time3 = time()
     
-        # se branco maior que 75%  
-        if squareL[0] > 0.75 and squareR[0] > 0.75:
+        if squareL[0] > 0.80 and squareR[0] > 0.80: # se branco maior que 80%  
             # frente(tempo, pote, potd)
             print('frente!')
-            frente(0.8, 0, 0)
-        elif squareL[1] > 0.75 and squareR[1] > 0.75:
+            frente(0.8, 40, 40)
+        elif squareL[0] < 0.25 and squareR[0] < 0.25: # se branco menor que 25% nos dois blocos
             print('parado!')
             parar(0.8)
+        elif squareL[0] < 0.50 :
+            print('vira p esquerda!')
+            frente(0.8, 0, 40)
+        elif squareR[0] < 0.50:
+            print('vira p direita!')
+            frente(0.8, 40, 0)
         else:
             print('nao to entendendo!')
-            
-        #exit()
+            frente(0.8, 40, 40)
         
         img_path = take_photo(picam2=camera)
         
         print_square_info(squareR, squareL)
         #print_time_spent(times=[time0, time1, time2, time3])
         
-  
-    
-    
-    
+        
+           
