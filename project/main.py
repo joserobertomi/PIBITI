@@ -1,56 +1,46 @@
-from time import time, sleep
 from imagem import encontrar_linha, threshold_colorido
 from direcionamento import vetor_central, posicionar_mira
 from movimentacao import parar, frente
 from raspi_camera import init_camera, take_photo
-
-cam_size=(640, 480)
-tamanho = tamanho = 100 # Definir o tamanho dos segmentos da mira
-
+from aux_functions import print_aim_result, take_move_decision
+import cv2 as cv
 
 if __name__ == '__main__':
 
-    cam_size=(640, 480)
-    altura_roi = 20
-    largura_roi= 20
-    dist_linha=10
+    print('Hello Pi 3!')
+    cam_size=(640, 480) # define por padrao o tamanho da camera
+    tamanho = 100 # Definir o tamanho dos segmentos da mira
+    camera = init_camera(cam_size=cam_size) # inicia a camera pelo modulo do raspi
 
-    camera = init_camera(cam_size=cam_size)
-    time1 = time()
-    
-    img_path = take_photo(picam2=camera)
-    time2 = time()    
-    
-    lim_roi = define_roi(altura_roi, largura_roi, dist_linha, img_path)
-        
     while True:
-                
-        print('eh o loop cowboy')
-        
-        squareL, squareR = apply_threshold_and_count(img_path, altura_roi, largura_roi, dist_linha, lim_roi)
-        time3 = time()
-    
-        if squareL[0] > 0.80 and squareR[0] > 0.80: # se branco maior que 80%  
-            # frente(tempo, pote, potd)
-            print('frente!')
-            frente(0.8, 40, 40)
-        elif squareL[0] < 0.25 and squareR[0] < 0.25: # se branco menor que 25% nos dois blocos
-            print('parado!')
-            parar(0.8)
-        elif squareL[0] < 0.50 :
-            print('vira p esquerda!')
-            frente(0.8, 0, 40)
-        elif squareR[0] < 0.50:
-            print('vira p direita!')
-            frente(0.8, 40, 0)
-        else:
-            print('nao to entendendo!')
-            frente(0.8, 40, 40)
-        
         img_path = take_photo(picam2=camera)
+        gray_frame = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
         
-        print_square_info(squareR, squareL)
-        #print_time_spent(times=[time0, time1, time2, time3])
+        new_path ="/home/perry/project/images/gray-frame.png"
+        cv.imwrite(new_path, gray_frame)
+        
+        # Tratamento frame  P&B => Blur => Threshold
+        _, treated_frame = cv.threshold(cv.blur(gray_frame, (10, 10)), 100, 255, cv.THRESH_BINARY) 
+        
+        new_path ="/home/perry/project/images/treated-frame.png"
+        cv.imwrite(new_path, treated_frame)
+        
+        vetor_centro = vetor_central(treated_frame, cam_size[1], cam_size[0])
+        centro_mira = encontrar_linha(vetor_centro)
+
+        aimmed_frame, aim_result = posicionar_mira(threshold_colorido(treated_frame), centro_mira, tamanho, cam_size[1])
+
+        new_path ="/home/perry/project/images/aimmed-frame.png"
+        cv.imwrite(new_path, aimmed_frame)
+                
+        #print_aim_result(aim_result)
+        
+        take_move_decision(aim_result)
+        
+        break
+        
+        
+    print('Done, arrombado!')
         
         
            

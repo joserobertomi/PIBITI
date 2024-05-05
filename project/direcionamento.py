@@ -40,4 +40,4 @@ def posicionar_mira(frame, centro_mira, tamanho, h):
         rgb_quadrados[index] = pb
         frame = cv2.putText(frame, str(pb), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1, cv2.LINE_AA) 
         frame = cv2.rectangle(frame, (x, y), (x + largura, y + largura), (255, 0, 255), 2) 
-    return frame
+    return frame, rgb_quadrados

@@ -38,6 +38,10 @@ def parar(sec):
 
 
 def frente(sec, pot_esq, pot_dir):
+    '''
+    Movimenta o veiculo para frente; 
+    (sleep(sec), pot_esq(de 0 a 100),  pot_dir(de 0 a 100))
+    '''
         
     gpio.setmode(gpio.BOARD)
     

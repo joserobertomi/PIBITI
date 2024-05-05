@@ -11,7 +11,7 @@ def init_camera(cam_size):
 def take_photo(picam2):
     # Captura a imagem da camera e salva em um arquivo tipo jpg
     picam2.start() 
-    path = "/home/perry/project/frame.jpg"
+    path = "/home/perry/project/images/original-frame.jpg"
     picam2.capture_file(path)
     return path
 
