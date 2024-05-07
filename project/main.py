@@ -11,6 +11,8 @@ if __name__ == '__main__':
     cam_size=(640, 480) # define por padrao o tamanho da camera
     tamanho = 100 # Definir o tamanho dos segmentos da mira
     camera = init_camera(cam_size=cam_size) # inicia a camera pelo modulo do raspi
+    
+    c = 5
 
     while True:
         img_path = take_photo(picam2=camera)
@@ -35,9 +37,14 @@ if __name__ == '__main__':
                 
         #print_aim_result(aim_result)
         
-        take_move_decision(aim_result)
+        pot_e, pot_d = take_move_decision(aim_result, 80)
+        print(f'Potencia Esq: {pot_e} | Potencia Dir: {pot_d}')
+        frente(0.2,pot_e, pot_d)
+        parar(1)
         
-        break
+        c-=1 
+        if not c: 
+            break
         
         
     print('Done, arrombado!')
