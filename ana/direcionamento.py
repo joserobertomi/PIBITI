@@ -1,43 +1,53 @@
 import numpy
 import cv2
 
-def vetor_central(frame, h, w): # Retona um vetor com o valor das cores na linha central do video
-    vetor = []
-
-    for item in range(w):
-        pixel = frame[(h // 2), item]
-        vetor.append(pixel)
-
-    vetor = numpy.array(vetor)
-    return vetor
-
-def posicionar_mira(frame, centro_mira, tamanho, h):
-    area = tamanho * tamanho
-    x, y = (centro_mira - tamanho + tamanho // 2), (h // 2 - tamanho + tamanho // 2)
-    quadrados = tamanho // 3
-    rois = [[x                  , y, quadrados],
-            [x + quadrados      , y, quadrados],
-            [x + quadrados * 2  , y, quadrados],
-                
-            [x                  , y + quadrados, quadrados],
-            [x + quadrados      , y + quadrados, quadrados],
-            [x + quadrados * 2  , y + quadrados, quadrados],
-                
-            [x                  , y + quadrados * 2, quadrados],
-            [x + quadrados      , y + quadrados * 2, quadrados],
-            [x + quadrados * 2  , y + quadrados * 2, quadrados]]
+def maximizacao(matriz): # Soma ponderada
+    soma = 0
+    somaesquerda = 0
+    somadireita = 0
     
-    rgb_quadrados = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # pesos = [[ 16,  12,  8,  4, 0, -4, -8, -12, -16,],
+    #          [ 12,   9,  6,  3, 0, -3, -6,  -9, -12,],
+    #          [  8,   6,  4,  2, 0, -2, -4,  -6,  -8,],
+    #          [  4,   3,  2,  1, 0, -1, -2,  -3,  -4,],
+    #          [  0,   0,  0,  0, 0,  0,  0,   0,   0,],
+    #          [ -4,  -3, -2, -1, 0,  1,  2,   3,   4,],
+    #          [ -8,  -6, -4, -2, 0,  2,  4,   6,   8,],
+    #          [-12,  -9, -6, -3, 0,  3,  6,   9,  12,],
+    #          [-16, -12, -8, -4, 0,  4,  8,  12,  16,]]
 
-    for index, roi in enumerate(rois, start = 0): 
-        x, y, largura = roi[0], roi[1], roi[2]
-        roi = frame[y:y+quadrados, x:x+quadrados]
-        pb = numpy.sum(roi == 0)
-        if pb <= area * 0.15:
-            pb = 0
-        else:
-            pb = 1
-        rgb_quadrados[index] = pb
-        frame = cv2.putText(frame, str(pb), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1, cv2.LINE_AA) 
-        frame = cv2.rectangle(frame, (x, y), (x + largura, y + largura), (255, 0, 255), 2) 
-    return frame
+    pesos = [[-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+            [-4, -3, -2, -1, 0, 1, 2, 3, 4]]
+
+    pesos = numpy.array(pesos).reshape((9, 9))
+
+    matrizesquerda = matriz[:, :4]
+    matrizdireita  = matriz[:, 5:]
+
+    pesosesquerda = pesos[:, :4]
+    pesosdireita  = pesos[:, 5:]
+
+    if len(matriz) != len(pesos) or len(matriz[0]) != len(pesos[0]):
+        raise ValueError("As dimensões da matriz e dos pesos devem ser iguais.")
+    
+    else:
+        for i in range(len(matriz)):
+            for j in range(len(matriz[0])):
+                soma += matriz[i][j] * pesos[i][j]
+
+        for i in range(len(matrizesquerda)):
+            for j in range(len(matrizesquerda[0])):
+                somaesquerda += matrizesquerda[i][j] * pesosesquerda[i][j]
+                
+        for i in range(len(matrizdireita)):
+            for j in range(len(matrizdireita[0])):
+                somadireita += matrizdireita[i][j] * pesosdireita[i][j]
+
+    return soma, somaesquerda, somadireita
