@@ -75,9 +75,29 @@ def posicionar_mira(frame, centro_mira, tamanho, h): # Mira 3x3
         frame = cv2.rectangle(frame, (x, y), (x + largura, y + largura), (255, 0, 255), 2) 
     return frame
 
-def posicionar_mira_9x9(centro_x, centro_y, tamanho_roi, imagem, framecolorido): # Mira 9x9 
+def cores(numero):
+    bgr = ()
+    cores = [( 0, (108, 108, 255)),
+             ( 1, (116, 140, 255)),
+             ( 2, (125, 171, 255)),
+             ( 3, (133, 203, 255)),
+             ( 4, (153, 233, 255)),
+             ( 6, (234, 221, 213)),
+             ( 8, (244, 185, 172)),
+             ( 9, (254, 167, 131)),
+             (12, (255, 148, 90)),
+             (16, (255, 181, 118))]
+    
+    for cor in cores:
+        if cor[0] == abs(numero):
+            bgr = cor[1]
+    return bgr
+
+def posicionar_mira_9x9(centro_x, centro_y, tamanho_roi, imagem, framecolorido, pesos): # Mira 9x9 
+    index = 0
     area = tamanho_roi * tamanho_roi
     rgb_quadrados = []
+
     for i in range(-4, 5): 
         linha = []  
         for j in range(-4, 5):
@@ -92,8 +112,17 @@ def posicionar_mira_9x9(centro_x, centro_y, tamanho_roi, imagem, framecolorido):
                 pb = 1
             linha.append(pb) 
 
-            framecolorido = cv2.putText(framecolorido, str(pb), (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1, cv2.LINE_AA) 
-            framecolorido = cv2.rectangle(framecolorido, (x1, y1), (x2, y2), (255, 0, 255), 2) 
+            cor = cores(pesos[index])
+            index = index + 1
+
+            framecolorido = cv2.rectangle(framecolorido, (x1, y1), (x2, y2), cor, -1)
+            framecolorido = cv2.putText(framecolorido, str(pb), (x1 + 5, y1 + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA) 
+
+            if pb == 1:
+                framecolorido = cv2.rectangle(framecolorido, (x1, y1), (x2, y2), (0, 0, 0), 2) 
+            else:
+                framecolorido = cv2.rectangle(framecolorido, (x1, y1), (x2, y2), (255, 0, 255), 1) 
+
         rgb_quadrados.append(linha)  
 
     rgb_quadrados = numpy.array(rgb_quadrados).reshape((9, 9))
