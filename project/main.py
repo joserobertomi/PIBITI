@@ -1,11 +1,10 @@
 from imagem import encontrar_linha, threshold_colorido, vetor_central, posicionar_mira_9x9
 from direcionamento import maximizacao, mapas_de_calor
-from movimentacao import parar, frente
+from movimentacao import parar, frente, take_move_decision2
 from raspi_camera import init_camera, take_photo
-from aux_functions import take_move_decision2
 import cv2 as cv
 import numpy as np
-    
+
 
 if __name__ == '__main__':
 
@@ -15,8 +14,9 @@ if __name__ == '__main__':
     camera = init_camera(cam_size=cam_size) # inicia a camera pelo modulo do raspi
     
     c = 5
-    
+
     pesos = mapas_de_calor(1)
+
     pesos_uni = np.transpose(pesos)
     pesos_uni = pesos_uni.flatten()
 
@@ -30,6 +30,9 @@ if __name__ == '__main__':
         # Tratamento frame  P&B => Blur => Threshold
         _, treated_frame = cv.threshold(cv.blur(gray_frame, (10, 10)), 100, 255, cv.THRESH_BINARY) 
         
+        framethres = threshold_colorido(treated_frame)
+        framethres = framethres
+
         new_path ="/home/perry/project/images/treated-frame.png"
         cv.imwrite(new_path, treated_frame)
         
@@ -38,10 +41,9 @@ if __name__ == '__main__':
         
         framecolorido = threshold_colorido(treated_frame)
         aim_result = np.transpose(posicionar_mira_9x9(cam_size[0]//2, cam_size[1]//2, tamanho, treated_frame, framecolorido))
-        soma, somaesquerda, somadireita = maximizacao(aim_result, pesos_uni)
-        treated_frame = threshold_colorido(treated_frame)
-    
-        finalimage = cv.addWeighted(framecolorido, 0.5, treated_frame, 0.5, 0)
+
+        soma, somaesquerda, somadireita = maximizacao(aim_result, pesos)
+        finalimage = cv.addWeighted(framecolorido, 0.5, framethres, 0.5, 0)
     
         finalimage = cv.putText(finalimage, ('soma: ' + str(soma)),                 (20,  40), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2, cv.LINE_AA) 
         finalimage = cv.putText(finalimage, ('somaesquerda: ' + str(somaesquerda)), (20,  80), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2, cv.LINE_AA) 
