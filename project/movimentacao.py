@@ -3,6 +3,28 @@ import getch
 import RPi.GPIO as gpio 
 gpio.cleanup()
 
+def take_move_decision2(base_esq, base_dir, pot_max): 
+    
+    pot_esq = abs(pot_max/(base_esq+1))
+    pot_dir = abs(pot_max/(base_dir+1))
+    
+    print(f'Potencia Esq: {pot_esq} | Potencia Dir: {pot_dir}')
+    
+    if pot_esq < 30:
+        pot_esq = 0
+    elif pot_esq < 45:
+        pot_esq = 45
+        
+    if pot_dir < 30:
+        pot_dir = 0 
+    elif pot_dir < 45:
+        pot_dir = 45
+        
+    if (not pot_esq) and (not pot_dir): 
+        return pot_max, pot_max
+    
+    return pot_esq, pot_dir
+
 def parar(sec):
     gpio.setmode(gpio.BOARD)
     

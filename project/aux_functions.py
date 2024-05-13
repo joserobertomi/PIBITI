@@ -12,6 +12,34 @@ def take_move_decision(base, potencia_max):
     
     return ((base[2]+base[6])/4)*potencia_max+potencia_max/2, ((base[0]+base[8])/4)*potencia_max+potencia_max/2
         
+
+def take_move_decision2(base_esq, base_dir, pot_max): 
+    
+    #pot_esq = abs(pot_max/(base_esq+1))
+    #pot_dir = abs(pot_max/(base_dir+1))
+    
+    pot_esq = abs(base_dir/90)*100
+    pot_dir = abs(base_esq/90)*100
+    
+    
+    print(f'Potencia Esq: {pot_esq} | Potencia Dir: {pot_dir}')
+    
+    if pot_esq < 30:
+        pot_esq = 0
+    elif pot_esq < 45:
+        pot_esq = 45
+        
+    if pot_dir < 30:
+        pot_dir = 0 
+    elif pot_dir < 45:
+        pot_dir = 45
+        
+    if (not pot_esq) and (not pot_dir): 
+        return pot_max, pot_max
+    
+    return pot_esq, pot_dir
+
+
 def tests():
     print(take_move_decision([0,0,0,0,0,0,0,0,0], 100))
     print_aim_result([0,0,0,0,0,0,0,0,0])
