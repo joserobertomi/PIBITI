@@ -12,6 +12,7 @@ def take_move_decision(base, potencia_max):
     
     return ((base[2]+base[6])/4)*potencia_max+potencia_max/2, ((base[0]+base[8])/4)*potencia_max+potencia_max/2
         
+        
 def tests():
     print(take_move_decision([0,0,0,0,0,0,0,0,0], 100))
     print_aim_result([0,0,0,0,0,0,0,0,0])
