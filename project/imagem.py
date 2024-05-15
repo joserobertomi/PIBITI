@@ -66,7 +66,7 @@ def posicionar_mira(frame, centro_mira, tamanho, h): # Mira 3x3
         x, y, largura = roi[0], roi[1], roi[2]
         roi = frame[y:y+quadrados, x:x+quadrados]
         pb = numpy.sum(roi == 0)
-        if pb <= area * 0.15:
+        if pb <= area * 0.75:
             pb = 0
         else:
             pb = 1
@@ -106,7 +106,7 @@ def posicionar_mira_9x9(centro_x, centro_y, tamanho_roi, imagem, framecolorido, 
             
             roi = imagem[y1:y2, x1:x2]
             pb = numpy.sum(roi == 0)
-            if pb <= area * 0.15:
+            if pb <= area * 0.5:
                 pb = 0
             else:
                 pb = 1
