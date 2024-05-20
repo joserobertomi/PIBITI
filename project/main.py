@@ -19,6 +19,7 @@ if __name__ == '__main__':
     pesos = mapas_de_calor(1)
     pesos_uni = np.array(pesos)
     pesos_uni = pesos_uni.flatten()
+    pesos_color = pesos_uni.transpose
 
     while True:
         img_path = take_photo(picam2=camera)
@@ -40,7 +41,7 @@ if __name__ == '__main__':
         centro_mira = encontrar_linha(vetor_centro)
         
         framecolorido = threshold_colorido(treated_frame)
-        aim_result = np.transpose(posicionar_mira_9x9(cam_size[0]//2, cam_size[1]//2+(tamanho*2), tamanho, treated_frame, framecolorido, pesos_uni))
+        aim_result = np.transpose(posicionar_mira_9x9(cam_size[0]//2, cam_size[1]//2+(tamanho*2), tamanho, treated_frame, framecolorido, pesos_color))
         soma, somaesquerda, somadireita = maximizacao(aim_result, pesos_uni)
         finalimage = cv.addWeighted(framecolorido, 0.5, framethres, 0.5, 0)
     
