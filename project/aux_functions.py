@@ -15,15 +15,15 @@ def take_move_decision(base, potencia_max):
 
 def take_move_decision2(base_esq, base_dir, pot_max): 
     
-    #pot_esq = abs(pot_max/(base_esq+1))
-    #pot_dir = abs(pot_max/(base_dir+1))
     
-    pot_esq = abs(base_dir/90)*100
-    pot_dir = abs(base_esq/90)*100
+    print(f'Base Esq: {base_esq} | Base Dir: {base_dir}')
     
+    pot_esq = (base_dir/132*(pot_max-40)) + 40
+    pot_dir = (base_esq/132*(pot_max-40)) + 40
     
     print(f'Potencia Esq: {pot_esq} | Potencia Dir: {pot_dir}')
     
+    """
     if pot_esq < 30:
         pot_esq = 0
     elif pot_esq < 45:
@@ -32,10 +32,12 @@ def take_move_decision2(base_esq, base_dir, pot_max):
     if pot_dir < 30:
         pot_dir = 0 
     elif pot_dir < 45:
-        pot_dir = 45
+        pot_dir = 45  
         
     if (not pot_esq) and (not pot_dir): 
         return pot_max, pot_max
+        
+    """
     
     return pot_esq, pot_dir
 
