@@ -1,11 +1,9 @@
 from imagem import encontrar_linha, threshold_colorido, vetor_central, posicionar_mira_9x9
 from direcionamento import maximizacao, mapas_de_calor
-from movimentacao import parar, frente
-from raspi_camera import init_camera, take_photo
-from aux_functions import take_move_decision2
+from movimentacao import init_motores, frente, decisao_de_movimento
+from raspi_camera import init_camera, tirar_foto
 import cv2 as cv
 import numpy as np
-
 
 if __name__ == '__main__':
 
@@ -13,7 +11,8 @@ if __name__ == '__main__':
     cam_size=(640, 480) # define por padrao o tamanho da camera
     tamanho = 30 # Definir o tamanho dos segmentos da mira
     camera = init_camera(cam_size=cam_size) # inicia a camera pelo modulo do raspi
-    
+    motores = init_motores()
+
     c = 5
 
     pesos = mapas_de_calor(1)
@@ -22,7 +21,7 @@ if __name__ == '__main__':
     pesos_color = pesos_uni.transpose
 
     while True:
-        img_path = take_photo(picam2=camera)
+        img_path = tirar_foto(picam2=camera)
         gray_frame = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
         
         new_path ="/home/perry/project/images/gray-frame.png"
@@ -51,24 +50,9 @@ if __name__ == '__main__':
 
         new_path ="/home/perry/project/images/aimmed-frame.png"
         cv.imwrite(new_path, finalimage)
-                
-        #print_aim_result(aim_result)
-        print("aq ok")
+        
         print(aim_result)
         print(f"soma esq = {somaesquerda}\nsoma dir = {somadireita}")
         
-        pot_e, pot_d = take_move_decision2(base_esq=somaesquerda, base_dir=somadireita, pot_max=100)
-        frente(0.1,pot_e, pot_d)
-        #parar(1)
-        
-        #c-=1 
-        #if not c: 
-        #    break
-            
-        #break
-        
-        
-    print('Done, arrombado!')
-        
-        
-           
+        pot_e, pot_d = decisao_de_movimento(base_esq=somaesquerda, base_dir=somadireita, pot_max=100)
+        frente(0.1, pot_e, pot_d, motores)
