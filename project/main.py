@@ -11,11 +11,14 @@ if __name__ == '__main__':
     cam_size=(640, 480) # define por padrao o tamanho da camera
     tamanho = 30 # Definir o tamanho dos segmentos da mira
     camera = init_camera(cam_size=cam_size) # inicia a camera pelo modulo do raspi
-    motores = init_motores()
+    
+    ###
+    pwm_esq, pwm_dir = init_motores()
+    ###
 
     c = 5
 
-    pesos = mapas_de_calor(1)
+    pesos, soma_max = mapas_de_calor(3)
     pesos_uni = np.array(pesos)
     pesos_uni = pesos_uni.flatten()
     pesos_color = pesos_uni.transpose
@@ -54,5 +57,8 @@ if __name__ == '__main__':
         print(aim_result)
         print(f"soma esq = {somaesquerda}\nsoma dir = {somadireita}")
         
-        pot_e, pot_d = decisao_de_movimento(base_esq=somaesquerda, base_dir=somadireita, pot_max=100)
-        frente(0.1, pot_e, pot_d, motores)
+        pot_esq, pot_dir = decisao_de_movimento(base_esq=somaesquerda, base_dir=somadireita, pot_max=50, pot_min=40, soma_max=soma_max)
+        
+        ###
+        frente(pwm_esq=pwm_esq, pot_esq=pot_esq, pwm_dir=pwm_dir, pot_dir=pot_dir)
+        ###

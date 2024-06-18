@@ -47,10 +47,10 @@ def vetor_central(frame, h, w):
     vetor = numpy.array(vetor)
     return vetor
 
-def cores(numero):
+def busca_cores(numero):
     # Define uma cor para cada valor no mapa de calor
     bgr = ()
-    cores = [( 0, (108, 108, 255)),
+    cores_array = [( 0, (108, 108, 255)),
              ( 1, (116, 140, 255)),
              ( 2, (125, 171, 255)),
              ( 3, (133, 203, 255)),
@@ -61,7 +61,7 @@ def cores(numero):
              (12, (255, 148, 90)),
              (16, (255, 181, 118))]
     
-    for cor in cores:
+    for cor in cores_array:
         if cor[0] == abs(numero):
             bgr = cor[1]
     return bgr
@@ -86,10 +86,10 @@ def posicionar_mira_9x9(centro_x, centro_y, tamanho_roi, imagem, framecolorido, 
                 pb = 1
             linha.append(pb) 
 
-            cor = cores(pesos[index])
+            # cor_array = busca_cores(pesos[index])
             index = index + 1
 
-            framecolorido = cv2.rectangle(framecolorido, (x1, y1), (x2, y2), cor, -1)
+            #framecolorido = cv2.rectangle(framecolorido, (x1, y1), (x2, y2), cor_array, -1)
             framecolorido = cv2.putText(framecolorido, str(pb), (x1 + 5, y1 + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA) 
 
             if pb == 1:
