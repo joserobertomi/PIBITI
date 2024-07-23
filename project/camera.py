@@ -32,44 +32,44 @@ def calculaAnguloReta(frame):
 vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 while(True):
     ret, frame = vid.read()
-    assert frame is not None, "a imagem nao pode ser obtida"
+    assert frame is not None, "a imagem nao pode ser obtida" ##VERIFICA SE A IMAGEM PODE SER CAPTURADA --> tirar_foto()
 
     # Converte para escala de cinza
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) # converte para escala de cinza --> gray_frame = cv.imread(img_path, cv.IMREAD_GRAYSCALE)
 
     # Pré-processa a imagem (blur, erosão, limiarização)
-    frame = cv2.blur(frame, (10, 10))
-    frame = cv2.erode(frame, None, iterations = 10)
+    frame = cv2.blur(frame, (10, 10)) # Aplica um blur na imagem --> _, treated_frame = cv.threshold(cv.blur(gray_frame, (10, 10)), 100, 255, cv.THRESH_BINARY)
+    frame = cv2.erode(frame, None, iterations = 10) #aplica 10 iteracoes de erosao 
 
     # frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    _, frame = cv2.threshold(frame, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, frame = cv2.threshold(frame, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU) # aplica limiarizacao binaria e o algoritmo de otsu 
     frame_altura, frame_largura = frame.shape
 
     # Aplica detecção de borda
-    frame2 = cv2.Canny(image = frame, threshold1 = 100, threshold2 = 200) 
+    frame2 = cv2.Canny(image = frame, threshold1 = 100, threshold2 = 200) # NOVO PASSO --> deteccao de borda 
     
     # Detecta o início e o fim da reta na imagem, além de calcular o ponto médio do início e do fim da reta
-    inicioReta, fimReta = localizaPontos(frame2, frame_largura, frame_altura)
+    inicioReta, fimReta = localizaPontos(frame2, frame_largura, frame_altura) # NOVO PASSO --> define as posicoes em X e Y dos pontos de interesse 
     
-    # Desenha uma imagem onde tem apenas uma reta no meio da faixa vista pela câmera
+    # NOVO PASSO: Desenha "na mao" uma imagem onde tem apenas uma reta no meio da faixa vista pela câmera
     frame3 = np.zeros((frame_altura, frame_largura), np.uint8)
     inicioReta_Meio = tuple(np.round(inicioReta[1]).astype(np.uint8))
     fimReta_Meio =   tuple(np.round(fimReta[1]).astype(np.uint8))
     frame3 = cv2.line(frame3, inicioReta_Meio, fimReta_Meio, (255, 255, 255), 5)
     
     # Calcula a inclinação da reta
-    angulos2 = calculaAnguloReta(frame2)
-    angulos3 = calculaAnguloReta(frame3)
+    angulos2 = calculaAnguloReta(frame2) # nessa imagem nao vao ter multiplos angulos? conferir a imagem que mandei para a ana 
+    angulos3 = calculaAnguloReta(frame3) # talvez calcular o angulo na mao seria mais barato em termos computacionais? 
 
-    frame_colorido = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
+    frame_colorido = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB) #transforma a imagem de duas diemnsoes em 3 para poder exibir informacoes
 
-    frame_colorido2 = cv2.cvtColor(frame2, cv2.COLOR_GRAY2RGB)
-    frame_colorido2 = cv2.putText(frame_colorido2, ('angulos2: ' + "{:.2f}".format(angulos2[0])),           (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) 
+    frame_colorido2 = cv2.cvtColor(frame2, cv2.COLOR_GRAY2RGB) #EXIBE INFO
+    frame_colorido2 = cv2.putText(frame_colorido2, ('angulos2: ' + "{:.2f}".format(angulos2[0])),           (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) #EXIBE INFO
 
-    frame_colorido3 = cv2.cvtColor(frame3, cv2.COLOR_GRAY2RGB)
-    frame_colorido3 = cv2.putText(frame_colorido3, ('angulos3: ' + "{:.2f}".format(angulos3[0])),  (20,  40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) 
-    frame_colorido3 = cv2.putText(frame_colorido3, ('inicioReta_Meio: ' + str(inicioReta[1])),     (20,  80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) 
-    frame_colorido3 = cv2.putText(frame_colorido3, ('fimReta_Meio: ' + str(fimReta[1])),           (20, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) 
+    frame_colorido3 = cv2.cvtColor(frame3, cv2.COLOR_GRAY2RGB) #EXIBE INFO
+    frame_colorido3 = cv2.putText(frame_colorido3, ('angulos3: ' + "{:.2f}".format(angulos3[0])),  (20,  40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) #EXIBE INFO
+    frame_colorido3 = cv2.putText(frame_colorido3, ('inicioReta_Meio: ' + str(inicioReta[1])),     (20,  80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) #EXIBE INFO
+    frame_colorido3 = cv2.putText(frame_colorido3, ('fimReta_Meio: ' + str(fimReta[1])),           (20, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA) #EXIBE INFO
     
     cv2.namedWindow('frame_colorido', cv2.WINDOW_NORMAL)
     cv2.imshow('frame_colorido', frame_colorido)
@@ -87,47 +87,3 @@ while(True):
         break
 cv2.destroyAllWindows()
 vid.release()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
