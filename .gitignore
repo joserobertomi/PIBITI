@@ -3,3 +3,4 @@ id_rsa.pub
 teste.py
 *.pyc
 /venv*
+.venv
