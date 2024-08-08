@@ -3,15 +3,16 @@ from sys import exit
 from time import time 
 import cv2 as cv
 import numpy as np
+from time import sleep 
 
 if __name__ == '__main__':
 
-    demo = True
+    demo = False
     if demo: 
         script([150,490])
         exit()
 
-    from movimentacao import init_motores, frente
+    from movimentacao import init_motores, frente, giro_antih, giro_h, parado
     from raspi_camera import init_camera, tirar_foto
 
     decorrido_segundos = [time()]
@@ -22,6 +23,7 @@ if __name__ == '__main__':
     pwm_esq, pwm_dir = init_motores()
 
     decorrido_segundos.append(time()-decorrido_segundos[-1])
+    count = 0
     try: 
         while True:
 
@@ -42,8 +44,8 @@ if __name__ == '__main__':
             high_b = np.uint8([0])
             mask = cv.inRange(treated_frame, high_b, low_b)
             contours, hierarchy = cv.findContours(mask, 1, cv.CHAIN_APPROX_NONE)
-            new_path ="/home/perry/project/images/treated-frame.png"
-            cv.imwrite(new_path, treated_frame)
+            new_path = str("/home/perry/project/images/treated-frame" + str(count) + ".png")
+            #cv.imwrite(new_path, treated_frame)
             parcial_segundos.append(time() - tempo) # Tratar e contar a imagem
             
             if len(contours) > 0 :
@@ -54,20 +56,22 @@ if __name__ == '__main__':
                     cy = int(M['m01']/M['m00'])
                     print("CX : "+str(cx)+"  CY : "+str(cy))
                     if cx >= pontos[1] :
-                        print("Turn Left")
-                        frente(pwm_esq=pwm_esq, pot_esq=0, pwm_dir=pwm_dir, pot_dir=50)
+                        print("Horario")
+                        giro_h(pwm_esq=pwm_esq, pot_esq=50, pwm_dir=pwm_dir, pot_dir=0)
                     if cx < pontos[1] and cx > pontos[0] :
                         print("On Track!")
-                        frente(pwm_esq=pwm_esq, pot_esq=75, pwm_dir=pwm_dir, pot_dir=75)
+                        frente(pwm_esq=pwm_esq, pot_esq=50, pwm_dir=pwm_dir, pot_dir=50)
                     if cx <= pontos[0] :
-                        print("Turn Right")
-                        frente(pwm_esq=pwm_esq, pot_esq=50, pwm_dir=pwm_dir, pot_dir=0)
+                        print("Antihorario ")
+                        giro_antih(pwm_esq=pwm_esq, pot_esq=0, pwm_dir=pwm_dir, pot_dir=50)
                     cv.circle(treated_frame, (cx,cy), 5, (255,255,255), -1)
                     cv.imwrite(new_path, treated_frame)
 
             else :
                 print("I don't see the line")
-
+                break
+            sleep(0.1)
+            parado(pwm_esq, pwm_dir)
             tempo = time()
             #pot_esq, pot_dir = decisao_de_movimento(base_esq=somaesquerda, base_dir=somadireita, pot_max=50, pot_min=40, soma_max=soma_max)
             #frente(pwm_esq=pwm_esq, pot_esq=pot_esq, pwm_dir=pwm_dir, pot_dir=pot_dir)
@@ -77,6 +81,9 @@ if __name__ == '__main__':
     
     except KeyboardInterrupt:
         print('--------- PARCIAIS DE TEMPO ---------')
+        flag = input('o que printar')
+        if (flag == 'n'):
+            exit()
         decorrido_segundos.pop(0) 
         print(f'Tempo para inicilizar as paradas = {decorrido_segundos[0]}')
         i = 0

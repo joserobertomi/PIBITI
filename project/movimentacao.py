@@ -33,6 +33,37 @@ def frente(pwm_esq, pot_esq, pwm_dir, pot_dir):
     pwm_dir.start(pot_dir)
 
 
+def giro_h(pwm_esq, pot_esq, pwm_dir, pot_dir):
+    pwm_esq.stop()
+    pwm_dir.stop()
+    
+    gpio.output(11, gpio.HIGH)
+    gpio.output(13, gpio.LOW)
+    gpio.output(16, gpio.HIGH)
+    gpio.output(18, gpio.LOW)
+    
+    pwm_esq.start(pot_esq)
+    pwm_dir.start(pot_dir)
+
+    
+def giro_antih(pwm_esq, pot_esq, pwm_dir, pot_dir):
+    pwm_esq.stop()
+    pwm_dir.stop()
+    
+    gpio.output(11, gpio.LOW)
+    gpio.output(13, gpio.HIGH)
+    gpio.output(16, gpio.LOW)
+    gpio.output(18, gpio.HIGH)
+    
+    pwm_esq.start(pot_esq)
+    pwm_dir.start(pot_dir)
+
+
+def parado(pwm_esq, pwm_dir):
+    pwm_esq.stop()
+    pwm_dir.stop()
+
+
 def decisao_de_movimento(base_esq, base_dir, pot_max, pot_min, soma_max): 
 
     if not (base_esq + base_dir):
@@ -46,3 +77,4 @@ def decisao_de_movimento(base_esq, base_dir, pot_max, pot_min, soma_max):
     print(f'Potencia Esq: {pot_esq} | Potencia Dir: {pot_dir}')
     
     return pot_esq, pot_dir
+
