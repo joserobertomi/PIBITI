@@ -11,7 +11,8 @@ if __name__ == '__main__':
     if demo: 
         script([150,490])
         exit()
-    move = False 
+    move = True 
+    make_movie = True
 
     from movimentacao import init_motores, frente, giro_antih, giro_h, parado
     from raspi_camera import init_camera, tirar_foto
@@ -22,6 +23,8 @@ if __name__ == '__main__':
     pontos = [150, 490]
     camera = init_camera(cam_size=cam_size) # inicia a camera pelo modulo do raspi
     pwm_esq, pwm_dir = init_motores()
+    pot_reta = 75
+    pot_curva = 50
 
     decorrido_segundos.append(time()-decorrido_segundos[-1])
     count = 0
@@ -46,7 +49,10 @@ if __name__ == '__main__':
             high_b = np.uint8([0])
             mask = cv.inRange(treated_frame, high_b, low_b)
             contours, hierarchy = cv.findContours(mask, 1, cv.CHAIN_APPROX_NONE)
-            new_path = str("/home/perry/project/images/treated-frame" + str(count) + ".png")
+            if make_movie:
+                new_path = str("/home/perry/project/images/movie/treated-frame" + str(count) + ".png")
+                cv.imwrite(new_path, treated_frame)
+            new_path ="/home/perry/project/images/treated_frame.png"
             cv.imwrite(new_path, treated_frame)
             parcial_segundos.append(time() - tempo) # Tratar e contar a imagem
             
@@ -54,22 +60,22 @@ if __name__ == '__main__':
                 c = max(contours, key=cv.contourArea)
                 M = cv.moments(c)
                 if M["m00"] != 0 :
-                    print(M)
+                    #print(M)
                     cx = int(M['m10']/M['m00'])
                     cy = int(M['m01']/M['m00'])
                     print("CX : "+str(cx)+"  CY : "+str(cy))
                     if cx >= pontos[1] :
                         print("Horario")
                         if move:
-                            giro_h(pwm_esq=pwm_esq, pot_esq=50, pwm_dir=pwm_dir, pot_dir=0)
+                            giro_h(pwm_esq=pwm_esq, pot_esq=pot_curva, pwm_dir=pwm_dir, pot_dir=0)
                     if cx < pontos[1] and cx > pontos[0] :
                         print("On Track!")
                         if move: 
-                            frente(pwm_esq=pwm_esq, pot_esq=50, pwm_dir=pwm_dir, pot_dir=50)
+                            frente(pwm_esq=pwm_esq, pot_esq=pot_reta, pwm_dir=pwm_dir, pot_dir=pot_reta)
                     if cx <= pontos[0] :
                         print("Antihorario ")
                         if move : 
-                            giro_antih(pwm_esq=pwm_esq, pot_esq=0, pwm_dir=pwm_dir, pot_dir=50)
+                            giro_antih(pwm_esq=pwm_esq, pot_esq=0, pwm_dir=pwm_dir, pot_dir=pot_curva)
                     cv.circle(treated_frame, (cx,cy), 5, (255,255,255), -1)
                     cv.imwrite(new_path, treated_frame)
             else :
@@ -82,6 +88,7 @@ if __name__ == '__main__':
             parcial_segundos.append(time() - tempo) # Avalia a decisao e ajusta o motor 
 
             decorrido_segundos.append(parcial_segundos[1:])
+            count += 1
     
     except KeyboardInterrupt:
         exit()

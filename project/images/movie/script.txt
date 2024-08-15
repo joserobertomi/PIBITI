@@ -1,0 +1,1 @@
+cd project; rm images/movie/ -r; mkdir images/movie; python3 main.py
