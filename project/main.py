@@ -12,7 +12,7 @@ if __name__ == '__main__':
         script([150,490])
         exit()
     move = True 
-    make_movie = True
+    make_movie = False
 
     from movimentacao import init_motores, frente, giro_antih, giro_h, parado
     from raspi_camera import init_camera, tirar_foto
@@ -25,6 +25,8 @@ if __name__ == '__main__':
     pwm_esq, pwm_dir = init_motores()
     pot_reta = 75
     pot_curva = 50
+    pot_max = 60
+    pot_min = 45
 
     decorrido_segundos.append(time()-decorrido_segundos[-1])
     count = 0
@@ -63,22 +65,26 @@ if __name__ == '__main__':
                     #print(M)
                     cx = int(M['m10']/M['m00'])
                     cy = int(M['m01']/M['m00'])
+                    v = ((cx-cam_size[0]/2)/cam_size[0])*2
+                    pwm = pot_min+abs(v*(pot_max-pot_min))
+                    print(f"PWM--->{pwm}\nV---->{v}")
                     print("CX : "+str(cx)+"  CY : "+str(cy))
-                    if cx >= pontos[1] :
+                    if v > 0.25:
                         print("Horario")
                         if move:
-                            giro_h(pwm_esq=pwm_esq, pot_esq=pot_curva, pwm_dir=pwm_dir, pot_dir=0)
-                    if cx < pontos[1] and cx > pontos[0] :
-                        print("On Track!")
-                        if move: 
-                            frente(pwm_esq=pwm_esq, pot_esq=pot_reta, pwm_dir=pwm_dir, pot_dir=pot_reta)
-                    if cx <= pontos[0] :
+                            giro_h(pwm_esq=pwm_esq, pot_esq=pwm, pwm_dir=pwm_dir, pot_dir=0)
+                    elif v < -0.25 :
                         print("Antihorario ")
                         if move : 
-                            giro_antih(pwm_esq=pwm_esq, pot_esq=0, pwm_dir=pwm_dir, pot_dir=pot_curva)
+                            giro_antih(pwm_esq=pwm_esq, pot_esq=0, pwm_dir=pwm_dir, pot_dir=pwm)
+                    else:
+                        print("On Track!")
+                        if move: 
+                            frente(pwm_esq=pwm_esq, pot_esq=pwm, pwm_dir=pwm_dir, pot_dir=pwm)
                     cv.circle(treated_frame, (cx,cy), 5, (255,255,255), -1)
                     cv.imwrite(new_path, treated_frame)
             else :
+                parado(pwm_esq, pwm_dir)
                 print("I don't see the line")
             sleep(0.1)
             parado(pwm_esq, pwm_dir)
